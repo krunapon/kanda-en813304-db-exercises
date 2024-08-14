@@ -1,5 +1,9 @@
 -- Create and populate the 'departments' table
-CREATE TABLE departments (
+create database joins_db;
+
+use joins_db;
+
+CREATE TABLE if not exists departments (
     dept_id INT PRIMARY KEY,
     dept_name VARCHAR(50)
 );
@@ -12,7 +16,7 @@ INSERT INTO departments (dept_id, dept_name) VALUES
 (5, 'Biology');
 
 -- Create and populate the 'instructors' table
-CREATE TABLE instructors (
+CREATE TABLE if not exists instructors (
     instructor_id INT PRIMARY KEY,
     name VARCHAR(50),
     dept_id INT
@@ -41,7 +45,7 @@ INNER JOIN instructors i ON d.dept_id = i.dept_id;
 -- 2. LEFT JOIN
 SELECT d.dept_name, i.name
 FROM departments d
-LEFT JOIN instructors i ON d.dept_id = i.dept_id;
+LEFT OUTER JOIN instructors i ON d.dept_id = i.dept_id;
 
 -- Result:
 -- dept_name       | name
@@ -56,7 +60,7 @@ LEFT JOIN instructors i ON d.dept_id = i.dept_id;
 -- 3. RIGHT JOIN
 SELECT d.dept_name, i.name
 FROM departments d
-RIGHT JOIN instructors i ON d.dept_id = i.dept_id;
+RIGHT OUTER JOIN instructors i ON d.dept_id = i.dept_id;
 
 -- Result:
 -- dept_name       | name
@@ -89,3 +93,5 @@ WHERE d.dept_id IS NULL;
 -- Chemistry       | NULL
 -- Biology         | NULL
 -- NULL            | Charlie Davis
+
+
