@@ -78,6 +78,6 @@ DELETE FROM Books WHERE BookID = 1;
 select * from books;
 select * from loans;
 
--- d) Resolve the update violation by alternating the table genres so that when a book is updated, its genres information is automatically modified as well. 
-
-update books set bookid = 3 where bookid = 2;
+alter table loans
+add constraint fk_books
+foreign key (BookID) references Books(BookID) on delete cascade;
