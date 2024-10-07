@@ -80,7 +80,7 @@ d group by s.student_id;
 SELECT s.name
 FROM students s
 WHERE NOT EXISTS (
-    SELECT c.course_id
+    SELECT c.course_id 
     FROM courses c
     WHERE NOT EXISTS (
         SELECT e.course_id
@@ -88,9 +88,6 @@ WHERE NOT EXISTS (
         WHERE e.student_id = s.student_id AND e.course_id = c.course_id
     )
 );
-
-ALTER TABLE students
-ADD COLUMN email VARCHAR(100) NOT NULL UNIQUE;
 
 
 CREATE VIEW student_enrollments AS
