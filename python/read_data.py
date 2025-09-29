@@ -1,29 +1,43 @@
-import os
-from mysql.connector import connect, Error
+from mysql.connector import Error
+from python.db_connection import get_db_connection
 
-try:
-    username = os.environ.get("DB_USERNAME")
-    password = os.environ.get("DB_PASSWORD")
 
-    if not username or not password:
-        raise ValueError("Database credentials not set in environment variables")
+def select_movies():
+    """Select and display all movies from the database"""
+    try:
+        with get_db_connection() as connection:
+            with connection.cursor() as cursor:
+                select_movies_query = "SELECT * FROM movies ORDER BY release_year DESC"
+                print("Executing query to fetch all movies...")
+                cursor.execute(select_movies_query)
+                result = cursor.fetchall()
 
-    with connect(
-        host="localhost",
-        user=username,
-        password=password,
-        database="movies_db",
-    ) as connection:
-        print(f"Connected successfully at {connection}")
+                if result:
+                    print(f"\nFound {len(result)} movies:")
+                    print("-" * 80)
 
-        select_movies_query = "SELECT * FROM movies"
-        with connection.cursor() as cursor:
-            cursor.execute(select_movies_query)
-            result = cursor.fetchall()
-            for row in result:
-                print(row)
-        print("Reading data from table 'movies' successfully")
-except Error as e:
-    print(f"Database Error: {e}")
-except ValueError as e:
-    print(f"Configuration Error: {e}")
+                    # Get column names for better display
+                    column_names = [desc[0] for desc in cursor.description]
+                    print(
+                        f"{'ID':<5} {'Title':<25} {'Year':<6} {'Genre':<15} {'Collection (M)':<15}"
+                    )
+                    print("-" * 80)
+                    for row in result:
+                        print(
+                            f"{row[0]:<5} {row[1]:<25} {row[2]:<6} {row[3]:<15} ${row[4]:<14}"
+                        )
+                else:
+                    print("No movies found in the database")
+            print(f"\nReading data from table 'movies' completed successfully")
+    except Error as e:
+        print(f"Database Error: {e}")
+        if hasattr(e, "errno"):
+            print(f"Error Code: {e.errno}")
+    except Exception as e:
+        print(f"Unexpected Error: {e}")
+    finally:
+        print("Database operation completed")
+
+
+if __name__ == "__main__":
+    select_movies()

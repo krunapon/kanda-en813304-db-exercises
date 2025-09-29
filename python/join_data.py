@@ -1,37 +1,52 @@
-import os
-from mysql.connector import connect, Error
+from mysql.connector import Error
+from db_connection import get_db_connection
 
-try:
-    username = os.environ.get("DB_USERNAME")
-    password = os.environ.get("DB_PASSWORD")
 
-    if not username or not password:
-        raise ValueError("Database credentials not set in environment variables")
+def query_movie_ratings():
+    """Query movie ratings with proper connection handling"""
+    connection = None
+    cursor = None
 
-    with connect(
-        host="localhost",
-        user=username,
-        password=password,
-        database="movies_db",
-    ) as connection:
-        print(f"Connected successfully at {connection}")
+    try:
+        connection = get_db_connection()
+        cursor = connection.cursor()
 
+        print(f"Connected successfully to {connection.server_host}")
+
+        # Query to get average ratings for movies
         join_movies_query = """
-        SELECT title, AVG(rating) as average_rating
-        FROM ratings
-        INNER JOIN movies
-        ON movies.id = ratings.movie_id
-        GROUP BY movie_id
-        ORDER BY average_rating DESC
+            SELECT title, AVG(rating) as average_rating
+            FROM ratings
+            INNER JOIN movies
+            ON movies.id = ratings.movie_id
+            GROUP BY movie_id
+            ORDER BY average_rating DESC
         """
 
-        with connection.cursor() as cursor:
-            cursor.execute(join_movies_query)
-            result = cursor.fetchall()
-            for row in result:
-                print(row)
-        print("Joining data successfully")
-except Error as e:
-    print(f"Database Error: {e}")
-except ValueError as e:
-    print(f"Configuration Error: {e}")
+        print("Executing query to get movie ratings...")
+        cursor.execute(join_movies_query)
+        result = cursor.fetchall()
+
+        print(f"Found {len(result)} movies with ratings:")
+        print("-" * 50)
+        for title, avg_rating in result:
+            print(f"{title}: {avg_rating:.2f}")
+
+        print("Query executed successfully")
+
+    except Error as e:
+        print(f"Database Error: {e}")
+        raise
+    except Exception as e:
+        print(f"Unexpected Error: {e}")
+        raise
+    finally:
+        if cursor:
+            cursor.close()
+        if connection and connection.is_connected():
+            connection.close()
+            print("Database connection closed")
+
+
+if __name__ == "__main__":
+    query_movie_ratings()

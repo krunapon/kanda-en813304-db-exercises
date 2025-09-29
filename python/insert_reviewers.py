@@ -2,8 +2,8 @@ from mysql.connector import Error
 from db_connection import get_db_connection
 
 
-def insert_ratings():
-    """Insert rating data with proper connection handling"""
+def insert_reviewers():
+    """Insert reviewer data with proper connection handling"""
     connection = None
     cursor = None
 
@@ -14,23 +14,25 @@ def insert_ratings():
         print(f"Connected successfully to {connection.server_host}")
 
         # Use parameterized query for security
-        insert_ratings_query = """
-            INSERT INTO ratings (rating, movie_id, reviewer_id)
-            VALUES (%s, %s, %s)
+        insert_reviewers_query = """
+            INSERT INTO reviewers (first_name, last_name)
+            VALUES (%s, %s)
         """
 
-        ratings_data = [
-            (6.4, 1, 1),
-            (5.6, 2, 2),
-            (6.3, 1, 3),
-            (5.1, 2, 4),
-            (5.0, 1, 5),
+        reviewers_data = [
+            ("Chaitanya", "Baweja"),
+            ("Mary", "Cooper"),
+            ("John", "Wayne"),
+            ("Thomas", "Stoneman"),
+            ("Penny", "Hofstadter"),
         ]
 
-        print("Inserting data into table ratings...")
-        cursor.executemany(insert_ratings_query, ratings_data)
+        print("Inserting data into table reviewers...")
+        cursor.executemany(insert_reviewers_query, reviewers_data)
         connection.commit()
-        print(f"Successfully inserted {cursor.rowcount} ratings into table 'ratings'")
+        print(
+            f"Successfully inserted {cursor.rowcount} reviewers into table 'reviewers'"
+        )
 
     except Error as e:
         print(f"Database Error: {e}")
@@ -51,4 +53,4 @@ def insert_ratings():
 
 
 if __name__ == "__main__":
-    insert_ratings()
+    insert_reviewers()

@@ -1,34 +1,59 @@
-import os
-from mysql.connector import connect, Error
+from mysql.connector import Error
+from db_connection import get_db_connection
 
-try:
-    username = os.environ.get("DB_USERNAME")
-    password = os.environ.get("DB_PASSWORD")
 
-    if not username or not password:
-        raise ValueError("Database credentials not set in environment variables")
+def get_movies(limit=2):
+    """Get movies from the database with optional limit."""
 
-    with connect(
-        host="localhost",
-        user=username,
-        password=password,
-        database="movies_db",
-    ) as connection:
-        print(f"Connected successfully at {connection}")
+    query = """
+    SELECT *
+    FROM movies
+    LIMIT %s
+    """
 
-        fetch_movies_query = """
-        SELECT *
-        FROM reviewers
-        """
+    try:
+        with get_db_connection() as connection:
+            with connection.cursor() as cursor:
+                cursor.execute(query, (limit,))
+                return cursor.fetchall()
+    except Error as e:
+        print(f"Database Error: {e}")
+        return []
 
-        with connection.cursor() as cursor:
-            cursor.execute(fetch_movies_query)
-            result = cursor.fetchmany(size=2)
-            for row in result:
-                print(row)
-            cursor.fetchall()
+
+def get_all_movies():
+    """Get all movies from the database."""
+
+    query = """
+    SELECT *
+    FROM movies
+    """
+
+    try:
+        with get_db_connection() as connection:
+            with connection.cursor() as cursor:
+                cursor.execute(query)
+                return cursor.fetchall()
+    except Error as e:
+        print(f"Database Error: {e}")
+        return []
+
+
+def main():
+    try:
+        # Get limited number of movies
+        movies = get_movies(2)
+
+        print("Movies (limited):")
+        for row in movies:
+            print(row)
+
+        print(f"\nFound {len(movies)} movies")
         print("Filtering data from table 'movies' successfully")
-except Error as e:
-    print(f"Database Error: {e}")
-except ValueError as e:
-    print(f"Configuration Error: {e}")
+
+    except ValueError as e:
+        print(f"Error: {e}")
+
+
+if __name__ == "__main__":
+    main()

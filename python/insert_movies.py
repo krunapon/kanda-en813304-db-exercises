@@ -1,23 +1,5 @@
-import os
-from dotenv import load_dotenv
-from mysql.connector import connect, Error
-
-# Load environment variables from .env file
-env_path = os.path.join(os.path.dirname(__file__), ".env")
-print(f"env_path is {env_path}")
-load_dotenv(dotenv_path=env_path, override=True)
-
-
-def get_db_connection():
-    """Create database connection with proper configuration"""
-    return connect(
-        host=os.environ.get("DB_HOST", "localhost"),
-        user=os.environ["DB_USERNAME"],
-        password=os.environ["DB_PASSWORD"],
-        database=os.environ.get("DB_NAME", "movies_db"),
-        autocommit=False,
-        charset="utf8mb4",
-    )
+from mysql.connector import Error
+from db_connection import get_db_connection
 
 
 def insert_movies():
@@ -45,7 +27,6 @@ def insert_movies():
         print("Inserting data into table movies...")
         cursor.executemany(insert_movies_query, movies_data)
         connection.commit()
-
         print(f"Successfully inserted {cursor.rowcount} movies into table 'movies'")
 
     except Error as e:
@@ -59,7 +40,6 @@ def insert_movies():
             connection.rollback()
         raise
     finally:
-        # Ensure proper cleanup
         if cursor:
             cursor.close()
         if connection and connection.is_connected():

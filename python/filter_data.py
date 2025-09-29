@@ -1,34 +1,36 @@
-import os
-from mysql.connector import connect, Error
+from mysql.connector import Error
+from python.db_connection import get_db_connection
 
-try:
-    username = os.environ.get("DB_USERNAME")
-    password = os.environ.get("DB_PASSWORD")
 
-    if not username or not password:
-        raise ValueError("Database credentials not set in environment variables")
+def get_high_grossing_movies(min_collection=300):
+    """Get movies with collection above threshold."""
 
-    with connect(
-        host="localhost",
-        user=username,
-        password=password,
-        database="movies_db",
-    ) as connection:
-        print(f"Connected successfully at {connection}")
+    query = """
+    SELECT title, collection_in_mil 
+    FROM movies 
+    WHERE collection_in_mil > %s
+    ORDER BY collection_in_mil DESC
+    """
 
-        filter_movies_query = """
-        SELECT title, collection_in_mil
-        FROM movies
-        WHERE collection_in_mil > 300
-        """
+    try:
+        with get_db_connection() as connection:
+            with connection.cursor() as cursor:
+                cursor.execute(query, (min_collection,))
+                return cursor.fetchall()
+    except Error as e:
+        print(f"Database Error: {e}")
+        return []
 
-        with connection.cursor() as cursor:
-            cursor.execute(filter_movies_query)
-            result = cursor.fetchall()
-            for row in result:
-                print(row)
-        print("Filtering data from table 'movies' successfully")
-except Error as e:
-    print(f"Database Error: {e}")
-except ValueError as e:
-    print(f"Configuration Error: {e}")
+
+def main():
+    try:
+        movies = get_high_grossing_movies()
+        for title, collection in movies:
+            print(f"{title}: ${collection}M")
+        print(f"Found {len(movies)} high-grossing movies")
+    except ValueError as e:
+        print(f"Error: {e}")
+
+
+if __name__ == "__main__":
+    main()
