@@ -12,7 +12,7 @@ try:
         host="localhost",
         user=username,
         password=password,
-        database="movies_db",
+        database="movies_5829_db",
     ) as connection:
         print(f"Connected successfully at {connection}")
 

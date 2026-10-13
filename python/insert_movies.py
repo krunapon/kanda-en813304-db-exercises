@@ -8,7 +8,8 @@ def insert_movies():
     cursor = None
 
     try:
-        connection = get_db_connection()
+        db_name = "movies_5829_db"
+        connection = get_db_connection(db_name)
         cursor = connection.cursor()
 
         print(f"Connected successfully to {connection.server_host}")

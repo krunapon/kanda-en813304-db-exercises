@@ -14,12 +14,12 @@ try:
     )
 
     # SQL query to create database if it doesn't exist
-    create_db_query = "CREATE DATABASE IF NOT EXISTS movies_db"
+    create_db_query = "CREATE DATABASE IF NOT EXISTS movies_5829_db"
 
     # Execute the database creation query
     cursor = connection.cursor()
     cursor.execute(create_db_query)
-    print("Database created successfully")
+    print("Database movies_5829_db created successfully")
 
     # Close cursor
     cursor.close()
